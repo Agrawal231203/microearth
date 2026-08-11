@@ -1,0 +1,50 @@
+version: "3.9"
+
+services:
+  backend:
+    build: ./backend
+    ports:
+      - "8000:8000"
+    environment:
+      SLPK_CORS_ORIGINS: "http://localhost:5173,http://localhost:80"
+      SLPK_PUBLIC_BASE_URL: "http://localhost:8000"
+    volumes:
+      - slpk_data:/data
+
+  frontend:
+    build: ./frontend
+    ports:
+      - "5173:80"
+    depends_on:
+      - backend
+
+  # --- Phase 10 forward-path (optional, not wired into the app yet) ---
+  # Uncomment to stand up PostGIS for vector/raster analysis storage.
+  # postgis:
+  #   image: postgis/postgis:16-3.4
+  #   environment:
+  #     POSTGRES_USER: gis
+  #     POSTGRES_PASSWORD: gis
+  #     POSTGRES_DB: gis
+  #   ports:
+  #     - "5432:5432"
+  #   volumes:
+  #     - postgis_data:/var/lib/postgresql/data
+
+  # --- Production-scale object storage (swap in for local disk storage) ---
+  # minio:
+  #   image: minio/minio:latest
+  #   command: server /data --console-address ":9001"
+  #   environment:
+  #     MINIO_ROOT_USER: minioadmin
+  #     MINIO_ROOT_PASSWORD: minioadmin
+  #   ports:
+  #     - "9000:9000"
+  #     - "9001:9001"
+  #   volumes:
+  #     - minio_data:/data
+
+volumes:
+  slpk_data:
+  # postgis_data:
+  # minio_data:
